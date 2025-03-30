@@ -1,0 +1,31 @@
+import numpy as np
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
+food = ctrl.Antecedent(np.arange(0,10.1,0.1),'food')
+service = ctrl.Antecedent(np.arange(0,10.1,0.1),'service')
+tip = ctrl.Consequent(np.arange(10,25.1,0.1),'tip')
+food['poor']=fuzz.trimf(food.universe,[0, 0 ,5])
+food['normal']=fuzz.trimf(food.universe,[ 0, 5, 10])
+food['good']=fuzz.trimf(food.universe,[ 5 , 10 , 10])
+service['poor']=fuzz.trimf(food.universe,[0, 0 ,5])
+service['normal']=fuzz.trimf(food.universe,[0, 5 ,10])
+service['good']=fuzz.trimf(food.universe,[5, 10 ,10])
+tip['small']=fuzz.trimf(tip.universe,[10, 13.75, 17.5])
+tip['avarage']=fuzz.trimf(tip.universe, [13.75, 17.5, 25])
+tip['much']=fuzz.trimf(tip.universe,[17.5, 20.75, 25])
+rule1 = ctrl.Rule(food['poor'] & service['poor'], tip['small'])
+rule2 = ctrl.Rule(food['poor'] & service['normal'], tip['small'])
+rule3 = ctrl.Rule(food['poor'] & service['good'], tip['avarage'])
+rule4 = ctrl.Rule(food['normal'] & service['poor'], tip['small'])
+rule5 = ctrl.Rule(food['normal'] & service['normal'], tip['avarage'])
+rule6 = ctrl.Rule(food['normal'] & service['good'], tip['much'])
+rule7 = ctrl.Rule(food['good'] & service['poor'], tip['small'])
+rule8 = ctrl.Rule(food['good'] & service['normal'], tip['much'])
+rule9 = ctrl.Rule(food['good'] & service['good'], tip['much'])
+tipping_ctrl=ctrl.ControlSystem([rule1,rule2,rule3,rule4,rule5,rule6,rule7,rule8,rule9])
+tipping=ctrl.ControlSystemSimulation(tipping_ctrl)
+tipping.input['food']=4
+tipping.input['service']=10
+tipping.compute()
+print(tipping.output['tip'])
+tip.view(sim=tipping)
